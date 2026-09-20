@@ -1,15 +1,30 @@
 # Virtual environment
 .venv/
+venv/
+env/
 
 # Python cache
 __pycache__/
-*.pyc
+*.py[cod]
 
 # Generated files
+data/output/
 outputs/
+
+# Excel temporary files
+~$*.xlsx
 
 # Environment variables
 .env
 
 # IDE settings
 .vscode/
+
+# Operating system files
+desktop.ini
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
