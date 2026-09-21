@@ -17,3 +17,15 @@ def filter_by_condition(data, column, condition):
             filtered_data.append(record)
 
     return filtered_data
+
+def filter_by_minimum(data, column, minimum):
+
+    filtered_data = []
+
+    for record in data:
+        value = record.get(column)
+
+        if isinstance(value, (int, float)) and value >= minimum:
+            filtered_data.append(record)
+
+    return filtered_data
