@@ -1,4 +1,5 @@
 from app.excel.reader import read_excel
+from app.cleaning.pipeline import clean_data
 from app.analytics.statistics import (
     calculate_average,
     calculate_minimum,
@@ -13,7 +14,7 @@ from app.reports.report import (
     save_department_averages
 )
 from app.visualization.charts import create_department_salary_chart
-
+from app.filtering.filter import filter_by_minimum
 
 def main():
     # Input file
@@ -27,6 +28,39 @@ def main():
 
     # Read Excel data
     data = read_excel(file_path)
+
+    # Clean data
+    data, missing_values, cleaning_summary = clean_data(data)
+
+    print("\n===== Data Cleaning =====")
+    print(
+    f"Records before cleaning : "
+    f"{cleaning_summary['records_before']}"
+    )
+    print(
+    f"Records after cleaning  : "
+    f"{cleaning_summary['records_after']}"
+   )
+    print(
+    f"Duplicates removed      : "
+    f"{cleaning_summary['duplicates_removed']}"
+  )
+    print(
+    f"Missing values found    : "
+    f"{cleaning_summary['missing_values']}"
+  )
+
+    # Display missing values
+    if missing_values:
+        print("\n===== Valeurs manquantes =====")
+
+        for item in missing_values:
+            print(
+                f"Ligne {item['row']} - "
+                f"Colonne : {item['column']}"
+            )
+    else:
+        print("\nAucune valeur manquante détectée.")
 
     # General statistics
     average_salary = calculate_average(data, "Salary")
@@ -45,7 +79,7 @@ def main():
     total_employees = count_records(data)
     departments = get_departments(data)
 
-    print("===== Résumé des employés =====")
+    print("\n===== Résumé des employés =====")
     print(f"Nombre total d'employés : {total_employees}")
     print(f"Nombre de départements : {len(departments)}")
     print(f"Départements : {', '.join(departments)}")
@@ -56,18 +90,37 @@ def main():
         "Department",
         "Salary"
     )
+
     print("\n===== Salaire moyen par département =====")
 
     for department, average in department_averages.items():
-      print(f"{department} : {average:.2f}")
+        print(f"{department} : {average:.2f}")
+
+    # Filter employees by minimum salary
+    high_salary_employees = filter_by_minimum(
+    data,
+    "Salary",
+    7000
+)
+
+    print("\n===== Employés avec salaire >= 7000 =====")
+
+    for employee in high_salary_employees:
+      print(
+        f"{employee['Name']} - "
+        f"{employee['Department']} - "
+        f"{employee['Salary']}"
+    )
 
     # Save reports
     save_statistics_report(
-        statistics,
-        total_employees,
-        departments,
-        report_file
-    )
+    statistics,
+    total_employees,
+    departments,
+    cleaning_summary,
+    high_salary_employees,
+    report_file
+)
 
     save_statistics_csv(
         statistics,
@@ -88,7 +141,10 @@ def main():
     print("\nAnalyse terminée avec succès !")
     print(f"Rapport créé : {report_file}")
     print(f"Fichier CSV créé : {csv_file}")
-    print(f"Fichier des salaires par département créé : {department_file}")
+    print(
+        f"Fichier des salaires par département créé : "
+        f"{department_file}"
+    )
     print(f"Graphique créé : {chart_file}")
 
 
