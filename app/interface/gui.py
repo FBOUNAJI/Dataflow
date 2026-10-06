@@ -1,7 +1,6 @@
 import os
 import tkinter as tk
 from tkinter import filedialog, messagebox
-import subprocess
 from app.processing.processor import process_file
 
 
